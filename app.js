@@ -12,7 +12,7 @@ $(document).ready( function() {
 		// zero out results if previous search has run
 		$('.results').html('');
 		// get the value of the tags the user submitted
-		var tags = $(this).find("input[name='tags']").val();
+		var tags = $(this).find("input[name='answerers']").val();
 		getAnswered(tags);
 	});
 });
@@ -46,6 +46,21 @@ var showQuestion = function(question) {
 							'</p>' +
  							'<p>Reputation: ' + question.owner.reputation + '</p>'
 	);
+	return result;
+};
+
+var showAnswerer = function(answerer) {
+	
+	// clone our result template code
+	var result = $('.templates .answerer').clone();
+	
+	var answererElem = result.find('.display_name a');
+	answererElem.attr('href', answerer.user.link);
+	answererElem.text(answerer.user.display_name);
+	
+	var repElem = result.find('.reputation');
+	repElem.text(answerer.user.reputation);
+
 	return result;
 };
 
@@ -103,7 +118,7 @@ var getAnswered = function(tags) {
 								order: 'desc',
 								sort: 'creation'};
 	var result = $.ajax({
-		url: "http://api.stackexchange.com/2.2/tags/"+ tags +"/top-answerers",
+		url: "http://api.stackexchange.com/2.2/tags/"+ tags +"/top-answerers/all_time",
 		data: request,
 		dataType: "jsonp",
 		type: "GET"
@@ -114,8 +129,8 @@ var getAnswered = function(tags) {
 		$('.search-results').html(searchResults);
 
 		$.each(result.items, function(i, item) {
-			var question = showQuestion(item);
-			$('.results').append(question);
+			var answerer = showAnswerer(item);
+			$('.results').append(answerer);
 		});
 	})
 	.fail(function(jqXHR, error, errorThrown) {
